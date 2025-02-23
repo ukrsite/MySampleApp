@@ -8,8 +8,10 @@ pool:
 
 variables:
   - group: "Dev"
-  NUGET_FEED_URL: "https://pkgs.dev.azure.com/StanislavKostenich0849/azuredevopsproject/_packaging/MyDependenciesFeed/nuget/v3/index.json" # Replace with your Azure Artifacts feed URL
-  NUGET_FEED_NAME: "MyDependenciesFeed" # Replace with your feed name
+  - name: NUGET_FEED_URL
+    value: "https://pkgs.dev.azure.com/StanislavKostenich0849/azuredevopsproject/_packaging/MyDependenciesFeed/nuget/v3/index.json"
+  - name: NUGET_FEED_NAME
+    value: "MyDependenciesFeed"
 
 stages:
 - stage: Build
