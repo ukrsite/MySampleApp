@@ -8,6 +8,8 @@ pool:
 
 variables:
   - group: "Dev"
+  NUGET_FEED_URL: "https://pkgs.dev.azure.com/StanislavKostenich0849/azuredevopsproject/_packaging/MyDependenciesFeed/nuget/v3/index.json" # Replace with your Azure Artifacts feed URL
+  NUGET_FEED_NAME: "MyDependenciesFeed" # Replace with your feed name
 
 stages:
 - stage: Build
@@ -27,9 +29,11 @@ stages:
         version: '6.x'
         installationPath: $(Agent.ToolsDirectory)/dotnet
 
-    # Restore dependencies
-    - script: dotnet restore
-      displayName: 'Restore Dependencies'
+    # Restore dependencies from Azure Artifacts feed
+    - script: |
+        dotnet nuget add source $(NUGET_FEED_URL) --name $(NUGET_FEED_NAME) --username "az" --password "$(System.AccessToken)" --store-password-in-clear-text
+        dotnet restore
+      displayName: 'Restore Dependencies from Azure Artifacts'
 
     # Build the project
     - script: dotnet build --configuration Release --output $(Build.ArtifactStagingDirectory)
@@ -38,6 +42,12 @@ stages:
     # Run unit tests
     - script: dotnet test
       displayName: 'Run Unit Tests'
+
+    # Publish NuGet packages to Azure Artifacts feed
+    - script: |
+        dotnet pack --configuration Release --output $(Build.ArtifactStagingDirectory)/nuget
+        dotnet nuget push $(Build.ArtifactStagingDirectory)/nuget/*.nupkg --source $(NUGET_FEED_URL) --api-key az
+      displayName: 'Publish NuGet Packages to Azure Artifacts'
 
     # List build output
     - script: ls -R $(Build.ArtifactStagingDirectory)
