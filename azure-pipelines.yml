@@ -1,5 +1,5 @@
 trigger:
-- main 
+- main # Trigger on changes to the 'main' branch in GitHub
 
 pool:
   name: devLinux
@@ -17,10 +17,8 @@ stages:
     displayName: 'Build Job'
     steps:
     # Checkout code from GitHub
-    - task: UseGitHubCheckout@1
-      inputs:
-        repository: 'MySampleApp' 
-        ref: 'main' 
+    - checkout: self # This clones the GitHub repository
+      clean: true # Optional: Cleans the repository before cloning
 
     # Install .NET SDK
     - task: UseDotNet@2
